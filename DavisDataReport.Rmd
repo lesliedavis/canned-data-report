@@ -1,0 +1,291 @@
+---
+title: 'Canned Data Report: 2012 Stress and Voting'
+author: "Leslie Davis"
+date: "December 27, 2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+```{r global_options, include=FALSE, cache=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(fig.width=6, fig.height=6, fig.path='figures/', warning=FALSE, message=FALSE, fig.retina=NULL, cache=F, autodep=T, echo=TRUE)
+library(kfigr) #figure referencing for markdown
+library(xtable) #pretty tables
+library(knitr) #knitting
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+mturk<-read.csv(file="C:/Users/LKD/Documents/Documents/William and Mary/Sophomore/SNaPP Lab/Canned Data Report - Boot Camp/mturkstress.csv")
+```
+
+# Variables
+
+## 1) Number of subjects in each treatment condition
+448 subjects received the control condition. 445 subjects received the first treatment (life stress). 440 subjects received the second treatment (political stress) and 446 subjects received the third treatment (brighten treatment). 
+
+```{r, echo=TRUE}
+condition <- table(mturk$treatmentgroup)
+names(condition) <- c("Control Group", "Life", "Political", "Brighten")
+#print(xtable(condition, type="latex", floating=FALSE, 
+        #caption='Number of Subjects in Each Condition', comment=FALSE))
+```
+\begin{table}[ht]
+\centering
+\caption{Number of Subjects in Each Condition} 
+\begin{tabular}{rr}
+  \hline
+ & Frequency \\ 
+  \hline
+Control Group & 448 \\ 
+  Life & 445 \\ 
+  Political & 440 \\ 
+  Brighten & 446 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+## 2) Mean of Social Interaction Anxiety Scale
+The mean of the Social Interaction Anxiety Scale (variable: saisscale) is 48.35. This is shown in the summary below.
+
+```{r, echo=TRUE}
+summary(mturk$saisscale) #used mean measure from summary function
+```
+
+## 3) Party Strength
+I created a new variable that determines if a subject is an Independent, strong Democrat or Republican, weak Democrat or Republican, or leans Democrat or Republican. The table below shows how each participant reported their party strength.
+
+```{r, echo=TRUE}
+mturk$partystrength <- NA #makes new variable
+mturk$partystrength[which(mturk$part1==3 & mturk$part2==3)]<- 0 #true Indepen.
+mturk$partystrength[which(mturk$part2==1 | mturk$part2==2)]<- 1 #leans D or R
+mturk$partystrength[which(mturk$part3== 2)]<- 2 #weak D or R
+mturk$partystrength[which(mturk$part3==1)]<- 3 #strong D or R
+partystrentable <- table(mturk$partystrength)
+names(partystrentable) <- c("True Independent", 
+                            "Leans Democrat or Republican", 
+                            "Weak Democrat or Republican", 
+                            "Strong Democrat or Republican")
+options(xtable.comment=FALSE)
+#print(xtable(partystrentable, type='latex', floating=FALSE, 
+             #caption="Strength of Party Affiliation",
+             #caption.placement="top"))
+```
+\begin{table}[ht]
+\centering
+\caption{Strength of Party Affiliation} 
+\begin{tabular}{rr}
+  \hline
+ & Frequency \\ 
+  \hline
+True Independent & 234 \\ 
+  Leans Democrat or Republican & 461 \\ 
+  Weak Democrat or Republican & 577 \\ 
+  Strong Democrat or Republican & 603 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+## 4) Political Engagement Scale
+
+```{r, echo=TRUE}
+index <- NA
+newpolengage2 <- (6-mturk$polengage2) #reverse coding polengages that are reversed coded
+newpolengage4 <- (6-mturk$polengage4)
+newpolengage5 <- (6-mturk$polengage5)
+
+mturk$index <- mturk$polengage1 + newpolengage2 + 
+  mturk$polengage3 + newpolengage4 + 
+  newpolengage5 + mturk$polengage6 #additive index
+```
+
+## 5) Three Variables of Interest
+I explored three variables: eff2, ideo, and newspaper. Eff2 assessed how well the respondents understood politics. Ideo looked at how respondents identified in terms of their political ideology. Newspaper measured how many days on average a respondent reads political news in the newspaper, per week.
+
+### 6a) Variable 1: Distribution of Responses to "People like me don't have any say about what the government does."
+
+```{r, echo=TRUE}
+### First variable: eff2
+understand <- table(mturk$eff2) #table distribution for understanding politics
+names(understand) <- c("Agree", "Disagree", "Neither")
+options(xtable.comment=FALSE)
+#print(xtable(understand, type='latex', floating=FALSE, 
+             #caption="People like me don't have any say about what the government does",
+             #caption.placement="top"))
+```
+\begin{table}[ht]
+\centering
+\caption{People like me don't have any say about what the government does} 
+\begin{tabular}{rr}
+  \hline
+ & Frequency \\ 
+  \hline
+Agree & 783 \\ 
+  Disagree & 865 \\ 
+  Neither & 233 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+### 6b) Variable 2: Distribution of Participants' Political Ideology
+
+```{r, echo=TRUE}
+### Second Variable: ideology (ideo)
+ideo <- table(mturk$ideo) # table distribution for ideology
+names(ideo) <- c("Extremely Liberal", "Liberal", "Moderate", 
+                 "Conservative", "Extremely Conservative")
+options(xtable.comment=FALSE)
+#print(xtable(ideo, type='latex', floating=FALSE, 
+             #caption="Distribution of Ideology",
+             #caption.placement="top"))
+```
+\begin{table}[ht]
+\centering
+\caption{Distribution of Ideology} 
+\begin{tabular}{rr}
+  \hline
+ & Frequency \\ 
+  \hline
+Extremely Liberal & 287 \\ 
+  Liberal & 694 \\ 
+  Moderate & 565 \\ 
+  Conservative & 276 \\ 
+  Extremely Conservative &  53 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+### 6c) Variable 3: Approximately how many days in a typical week would you say you read about politics in the newspapers?
+
+```{r,echo=TRUE}
+### Third Variable: newspaper
+news <- table(mturk$newspaper) # table distribution for newspaper
+options(xtable.comment=FALSE)
+#print(xtable(news, type='latex', floating=FALSE, 
+             #caption="Days Spent Reading the Political News in the Newspaper",
+             #caption.placement="top"))
+```
+
+\begin{table}[ht]
+\centering
+\caption{Days Spent Reading Political News in the Newspaper} 
+\begin{tabular}{rr}
+  \hline
+ & People per day \\ 
+  \hline
+0 & 577 \\ 
+  1 & 290 \\ 
+  2 & 245 \\ 
+  3 & 208 \\ 
+  4 & 135 \\ 
+  5 & 143 \\ 
+  6 &  59 \\ 
+  7 & 175 \\ 
+   \hline
+\end{tabular}
+\end{table} 
+
+### 7) Relationship Between Interest in Politics and Amount of Political Reporting Consumption
+I looked at the relationship with the amount of times each person read political news articles online (variable: internet) and their interest in politics (interestreverse). I predict they will have a negative relationship, such that people who are very interested in politics (response is a low number) will read politics reporting more often (response is a high number). 'Internet' will be the dependent variable since it will depend on the subject's interest in politics, which is measured by the variable 'interestreverse'.
+
+```{r, echo=TRUE}
+t.test(mturk$interestreverse,mturk$internet)
+```
+
+# Sample
+
+## 8) Unit of Analysis and Proportion of Respondents Who Finished
+The unit of analysis in the data set is at the individual level. 1778 people completed the survey. 1926 people in total took the survey. Therefore, about 92 percent of participants finished the survey. 
+
+```{r, echo=TRUE}
+finished <- c(mturk$finished[which(mturk$finished==1)]) #subset of finished
+done <- length(finished) #number of finished ppl
+total_rows <- nrow(mturk) #total number of ppl who took the survey
+percent_done <- (done/total_rows)*100 #calculation to find percent
+```
+
+
+## 9) Married Participants
+There were 246 participants who were male and married (out of 1926 participants who took the survey). There were 356 subjects who were female and married (out of 1926 participants who took the survey). There was 602 people total who were married. Therefore, the proportion of the sample that was married was about 31.3 percent. The proportion of the sample that was female and married was about 38.2 percent.
+
+Since the p value is much less than 0.05, the proportion of men who are married is significantly different from the proportion of married women. The p-value is shown in the prop test below.
+
+```{r, echo=TRUE}
+##### Proportion of the sample that is married #########
+married_ppl <- mturk[ which(mturk$marital==2),] #married subset
+nmarried <- nrow(married_ppl) # number of people who are married
+pro_married <- nmarried/nrow(mturk) #proportion of married ppl
+
+##### Proportion of women who are married #######
+married_women <- mturk[ which(mturk$male==2 & mturk$marital==2),] #married wmn
+mwomen<- nrow(married_women) #number of married women
+women <- mturk[ which(mturk$male==2),] #all women
+number_of_women<- nrow(women) #number of women respondents
+pro_women_married <- mwomen/nrow(women) #proportion of married women
+
+#### Proportion of men who are married #####
+men <- mturk[ which(mturk$male==1),] # subset of all men
+number_of_men <- nrow(men) #number of all men
+married_men<- mturk[ which(mturk$male==1 & mturk$marital==2),] # married men subset
+mmen <- nrow(married_men) #number of married men
+
+prop.test(x=c(mmen, mwomen), n=c(number_of_men, number_of_women))
+```
+
+## 10) ANES Data Comparison
+In the Mturk data, 477 respondents were strong democrats and 399 were weak democrats. 326 respondents leaned democratic. Therefore, 1,202 respondents identified as democrats, after adding up these frequencies. A proportions test demonstrated that the proportions of democrats in the mturkstress data was significantly different than the ANES data, since the p value is less than 0.05.Thisaffects our interpretation of our findings since the mturkstress data may not be as representative of national election behavior, as we once believed.
+
+```{r, echo=TRUE}
+strong_demo <- mturk[ which(mturk$part1==1 & mturk$part3==1),] #strong demo subset
+weak_demo <- mturk[ which(mturk$part1==1 & mturk$part3==2),] #weak demo subset
+lean_demo <- mturk[ which(mturk$part2==1),] #lean democrat subset
+n_lean_demo <- nrow(lean_demo) #number of lean demos
+demo <- mturk[ which(mturk$part1==1),] #total demo subset
+n_strongdemo <- nrow(strong_demo) #number of strong demos
+n_weakdemo <- nrow(weak_demo) #number of weak demos
+n_demo <- nrow(demo) #number of total demos
+
+#comparing mturk data to ANES data (from ANES website)
+prop.test(x=c((n_strongdemo + n_weakdemo + n_lean_demo),2737),
+          n=c(total_rows, 5895)) 
+```
+
+# Hypothesis Testing
+As shown by a p-value greater than 0.05, the relationship between the control and second treatment group to likelihood of voting was insignificant. 
+
+```{r, echo=TRUE}
+control <- mturk$votelikely[which (mturk$control==1)] 
+#subset of the control group on voting 
+
+polstress <- mturk$votelikely[which (mturk$treatmentgroup==2)] 
+#pol stress treatment
+
+t.test(x=control, y=polstress)
+```
+
+# Data Visualization
+The correlation between age and response length was 0.1202347. Since this number is much less than 1, we can say that the two variables are not strongly correlated.
+
+```{r, echo= TRUE}
+options(repos="https://cran.rstudio.com" )
+votetable<- table(mturk$votechoice)
+names(votetable) <- c("Barack Obama", "Mitt Romney", "Other")
+barplot(votetable, width=.5, main="Proportion of Supporters for Each Candidate", 
+        col=c("darkblue", "red", "gray"),  xlab='Candidate', 
+        ylab="Number of Respondents", ylim=c(0,1200))
+
+#### Histogram for the age variable ######
+hist(mturk$age, main="Distribution of Respondent Age", 
+     xlab= "Age", ylab= "Frequency of Response", col="cadetblue")
+
+##### Correlation plot of age and response length ####
+plot(mturk$age[which(mturk$responselength >0)],
+     mturk$responselength[which(mturk$responselength >0)], 
+     xlab='Age of Respondent', ylab='Length of Free-Response Answers', 
+     main= 'Distribution of Age and Response Length') 
+cor.test(mturk$age[which(mturk$responselength >0)],
+         mturk$responselength[which(mturk$responselength >0)], method='pearson')
+```
+
+
